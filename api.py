@@ -33,7 +33,7 @@ def load_defs():
     for (root,dirs,files) in os.walk("./userdeffs"):
         for file in files:
             if file.endswith(".json"):
-                break
+                continue
             else:
                 defs.append(file)
 
