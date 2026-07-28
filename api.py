@@ -21,9 +21,18 @@ class create_vars(BaseModel):
 
 
 
+def load_defs():
+    global defs
+    defs = []
+    for (root,dirs,files) in os.walk("./userdeffs"):
+        for file in files:
+            defs.append(file.replace(".txt", ""))
+            
+        
+
 
 @app.post("/send")
-def read_root(payload: DownloadRequest):
+async def read_root(payload: DownloadRequest):
     path = payload.path
     url = payload.url
     if payload.zip:
@@ -34,8 +43,22 @@ def read_root(payload: DownloadRequest):
         print(path,url,zip,format)
         return {"status": "recieved", "data" : payload}
     
-#test to create function via api
+#test to create tasks via api
 @app.post("/create")
-def create(payload: create_vars):
-    with open(f"userdeffs/{payload.name}.txt", "w", encoding="utf8") as file:
-       file.write(f"os.system('{payload.code}')")
+async def create(payload: create_vars):
+    if payload.bash:
+        with open(f"userdeffs/{payload.name}.txt", "w", encoding="utf8") as file:
+            file.write(f"os.system('{payload.code}')") #user inputted bash script
+            
+            load_defs()             #reload user created functions
+            return {"defs": defs}
+
+#initial load of tasks upon app launch
+@app.get("/load")
+async def load():
+    load_defs()
+    return {"defs": defs }
+
+#run user created task next on the list
+
+
