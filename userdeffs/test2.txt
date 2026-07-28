@@ -1,1 +1,0 @@
-os.system('curl -LO "https://www.w3schools.com"')
