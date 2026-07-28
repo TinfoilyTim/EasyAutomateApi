@@ -1,0 +1,1 @@
+My journey as a junior programmer building a mobile app that aims to simplify the creation and execution of running tasks on a server
