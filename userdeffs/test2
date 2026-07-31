@@ -1,1 +1,0 @@
-os.system('curl -LO "__link__"')
