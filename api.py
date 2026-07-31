@@ -25,6 +25,9 @@ class create_vars(BaseModel):
 class retrieve_vars(BaseModel):
     name:str
 
+class send_vars(BaseModel):
+    name:str
+    vars:JsonValue
 
 #load user created tasks into defs list by reading file names
 def load_defs():
@@ -43,18 +46,6 @@ def load_task_vars(name):
             return file.read()
 
 
-
-@app.post("/send")
-async def read_root(payload: DownloadRequest):
-    path = payload.path
-    url = payload.url
-    if payload.zip:
-        os.system('rm -rf temp.zip')
-        os.system(f'curl -Lo "{path}temp.zip" {url} && UNZIP_DISABLE_ZIPBOMB_DETECTION=TRUE unzip {path}temp.zip -d {path} && rm {path}temp.zip')
-        return {"status": "recieved", "data" : payload}
-    else:
-        print(path,url,zip,format)
-        return {"status": "recieved", "data" : payload}
     
 #test to create tasks via api
 @app.post("/create")
@@ -80,4 +71,14 @@ async def prepare(payload:retrieve_vars):
     return {"name": payload.name, "vars_needed" : y}
     
 
+#executes the code
+@app.post("/prepare/run")
+async def runtest(payload:send_vars):
+    with open(f"userdeffs/{payload.name}","r", encoding="utf8") as file:
+        data = file.read()
+        #iterates through json variables/item names and replaces every match with its corresponding value from client payload
+        for var,value in payload.vars.items():
+            if f"__{var}__" in data:
+                data = data.replace(f"__{var}__", value)
+        exec(data)
 

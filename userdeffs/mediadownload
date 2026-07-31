@@ -1,0 +1,1 @@
+os.system('curl -Lo "__path__/temp.zip" "__url__" && UNZIP_DISABLE_ZIPBOMB_DETECTION=TRUE unzip __path__/temp.zip -d __path__/ && rm __path__/temp.zip')

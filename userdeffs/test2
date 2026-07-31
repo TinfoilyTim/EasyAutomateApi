@@ -1,1 +1,1 @@
-os.system('curl -LO "link"')
+os.system('curl -LO "__link__"')
