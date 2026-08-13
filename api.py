@@ -7,8 +7,7 @@ app = FastAPI()
 
 
 defs = []
-is_json = ".json"
-is_text = ""
+
 
 
 class create_vars(BaseModel):
@@ -29,9 +28,6 @@ class send_vars(BaseModel):
 
 
 
-
-
-
 #load user created tasks into defs list by reading file names
 def load_defs():
     global defs
@@ -43,18 +39,20 @@ def load_defs():
             else:
                 defs.append(file)
 
-#read json file for corresponding task
+
+#read/write file, variables for cleaner and simpler code
+
+is_json = ".json"
+is_text = ""
+
 def dyn_read(name, tempj):
     with open(f"./userdeffs/{name}{tempj}", "r", encoding="utf8") as file:
         return file.read()
 
-def dyn_write(name, tempj, indata):
+def dyn_write(indata, name, tempj):
     with open(f"./userdeffs/{name}{tempj}", "w", encoding="utf8") as file:
-        file.write(f"os.system('{indata}')")
+        file.write(indata)
     
-
-
-
 
 
 
@@ -63,12 +61,10 @@ def dyn_write(name, tempj, indata):
 @app.post("/create")
 async def create(payload: create_vars):
     if payload.bash:
-        with open(f"userdeffs/{payload.name}", "w", encoding="utf8") as file:
-            file.write(f"os.system('{payload.code}')") #user inputted bash script
-        with open (f"userdeffs/{payload.name}.json", "w", encoding="utf8") as file:
-            file.write(json.dumps(payload.vars))
-            load_defs()             #reload user created tasks
-            return {"vars": payload.vars}
+        dyn_write(f"os.system('{payload.code}')", payload.name, is_text) #user inputted bash script
+        dyn_write(json.dumps(payload.vars), payload.name, is_json)
+        load_defs()             #reload user created tasks
+        return {"vars": payload.vars}
 
 
 
