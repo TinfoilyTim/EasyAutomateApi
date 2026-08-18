@@ -6,7 +6,7 @@ import json
 app = FastAPI()
 
 
-defs = []
+
 
 
 
@@ -29,6 +29,9 @@ class send_vars(BaseModel):
 
 
 #load user created tasks into defs list by reading file names
+
+defs = []
+
 def load_defs():
     global defs
     defs = []
@@ -41,7 +44,6 @@ def load_defs():
 
 
 #read/write file, variables for cleaner and simpler code
-
 is_json = ".json"
 is_text = ""
 
@@ -61,11 +63,19 @@ def dyn_write(indata, name, tempj):
 @app.post("/create")
 async def create(payload: create_vars):
     if payload.bash:
-        dyn_write(f"os.system('{payload.code}')", payload.name, is_text) #user inputted bash script
+        dyn_write(f"os.system('{payload.code}')", payload.name, is_text)
         dyn_write(json.dumps(payload.vars), payload.name, is_json)
         load_defs()             #reload user created tasks
         return {"vars": payload.vars}
 
+    elif payload.python:
+        dyn_write(payload.code, payload.name, is_text)
+        dyn_write(json.dumps(payload.vars), payload.name, is_json)
+        load_defs()
+        return {"task": payload.name, "vars": payload.vars }
+
+    else:
+        return {"error": "no script method selected or both selected"}
 
 
 
@@ -76,19 +86,15 @@ async def load():
     return {"defs": defs }
 
 
-
-
 #run user created task next on the list
-@app.post("/prepare")
+@app.post("/run/prepare")
 async def prepare(payload:retrieve_vars):
-    y = json.loads(load_task_vars(payload.name, is_json))
+    y = json.loads(dyn_read(payload.name, is_json))
     return {"name": payload.name, "vars_needed" : y}
     
 
-
-
 #executes the code
-@app.post("/prepare/run")
+@app.post("/run/execute")
 async def run(payload:send_vars):
     data = dyn_read(payload.name,is_text)
 
@@ -98,5 +104,14 @@ async def run(payload:send_vars):
             data = data.replace(f"__{var}__", value)
     exec(data)
 
-#@app.post("/edit")
-#async def edit
+
+###TO DO:
+
+#edit task function
+
+#authentication/hashing
+
+#end to end encryption for said authentication
+
+
+
