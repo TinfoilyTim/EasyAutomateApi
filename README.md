@@ -12,3 +12,5 @@ To see all tasks when you open the client it would go to / (only a get request),
 To run a task the client would get a json list from /prepare containing the name of the task as well as a nested json list of what variables are expected, this is loaded straight from the tasks corresponding .json file. This is so the client knows what to prompt the user for, either text input, true or false button or other multi choice. Then the client sends the updated json payload to /prepare/run which reaches the server where it reads through all the variable names and replaces all variables in the script with its corresponding json value.
 
 Now the hard part, building the app. Wish me luck!
+find my progress over at:
+https://github.com/TinfoilyTim/EasyAutomateApp
