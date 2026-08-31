@@ -1,14 +1,19 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, JsonValue
 import os
 import json
 
 app = FastAPI()
 
-
-
-
-
+# Add CORS middleware to allow your frontend origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Your React app URL
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],  # Allows all headers
+)
 
 class create_vars(BaseModel):
     name:str
@@ -17,14 +22,12 @@ class create_vars(BaseModel):
     code:str
     vars:JsonValue
 
-class retrieve_vars(BaseModel):
+class prepare_vars(BaseModel):
     name:str
 
-class send_vars(BaseModel):
+class execute_vars(BaseModel):
     name:str
     vars:JsonValue
-
-
 
 
 
@@ -88,14 +91,14 @@ async def load():
 
 #run user created task next on the list
 @app.post("/run/prepare")
-async def prepare(payload:retrieve_vars):
+async def prepare(payload:prepare_vars):
     y = json.loads(dyn_read(payload.name, is_json))
     return {"name": payload.name, "vars_needed" : y}
     
 
 #executes the code
 @app.post("/run/execute")
-async def run(payload:send_vars):
+async def run(payload:execute_vars):
     data = dyn_read(payload.name,is_text)
 
     #iterates through json variables/item names and replaces every match with its corresponding value from client payload
@@ -104,7 +107,7 @@ async def run(payload:send_vars):
             data = data.replace(f"__{var}__", value)
     exec(data)
 
- ##testing git stuff
+
 ###TO DO:
 
 #edit task function
