@@ -90,10 +90,10 @@ async def load():
 
 
 #run user created task next on the list
-@app.post("/run/prepare")
-async def prepare(payload:prepare_vars):
-    y = json.loads(dyn_read(payload.name, is_json))
-    return {"name": payload.name, "vars_needed" : y}
+@app.get("/run/prepare/")
+async def prepare(name: str):
+    y = json.loads(dyn_read(name, is_json))
+    return {"name": name, "vars_needed" : y}
     
 
 #executes the code
@@ -106,6 +106,8 @@ async def run(payload:execute_vars):
         if f"__{var}__" in data:
             data = data.replace(f"__{var}__", value)
     exec(data)
+    return { "status": "Task ran sucessfully"}
+    
 
 
 ###TO DO:
